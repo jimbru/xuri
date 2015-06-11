@@ -1,10 +1,16 @@
 # xuri
 
-A Clojure library designed to ... well, that part is up to you.
+A URI library.
 
 ## Usage
 
 FIXME
+
+## References
+
+- https://tools.ietf.org/html/rfc2396
+- https://tools.ietf.org/html/rfc2732
+- https://tools.ietf.org/html/rfc3986
 
 ## License
 
