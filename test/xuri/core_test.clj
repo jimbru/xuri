@@ -37,3 +37,19 @@
     (is (= (percent-encode "£") "%C2%A3"))
     (is (= (percent-encode "€") "%E2%82%AC"))
     (is (= (percent-encode "A%b €£") "A%25b%20%E2%82%AC%C2%A3"))))
+
+(deftest percent-decode-test
+  (testing "empty strings"
+    (is (= (percent-decode nil) ""))
+    (is (= (percent-decode "") "")))
+  (testing "ASCII strings"
+    (is (= (percent-decode "a") "a"))
+    (is (= (percent-decode "%25") "%"))
+    (is (= (percent-decode "A%20b") "A b"))
+    (is (= (percent-decode "%2C-.%2F09%3A%40AZ%5B%5E_%60az%7D~")
+           ",-./09:@AZ[^_`az}~")))
+  (testing "UTF-8 strings"
+    (is (= (percent-decode "%C2%A3") "£"))
+    #_(is (= (percent-decode "%E2%82%AC") "€"))
+    #_(is (= (percent-decode "A%25b%20%E2%82%AC%C2%A3") "A%b €£"))
+    ))
