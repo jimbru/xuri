@@ -1,4 +1,4 @@
-(ns xuri.core
+(ns xuri.codec
   (:require [clojure.string :as string]))
 
 (def reserved-chars

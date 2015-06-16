@@ -1,7 +1,7 @@
-(ns xuri.core-test
+(ns xuri.codec-test
   (:require [clojure.string :as string]
             [clojure.test :refer :all]
-            [xuri.core :refer :all]))
+            [xuri.codec :refer :all]))
 
 (deftest percent-encode-test
   (testing "empty strings"
