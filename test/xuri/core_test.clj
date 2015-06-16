@@ -50,6 +50,12 @@
            ",-./09:@AZ[^_`az}~")))
   (testing "UTF-8 strings"
     (is (= (percent-decode "%C2%A3") "£"))
-    #_(is (= (percent-decode "%E2%82%AC") "€"))
-    #_(is (= (percent-decode "A%25b%20%E2%82%AC%C2%A3") "A%b €£"))
-    ))
+    (is (= (percent-decode "%c2%a3") "£"))
+    (is (= (percent-decode "%E2%82%AC") "€"))
+    (is (= (percent-decode "A%25b%20%E2%82%AC%C2%A3") "A%b €£")))
+  (testing "busted strings"
+    (is (= (percent-decode "%") "%"))
+    (is (= (percent-decode "%2") "%2"))
+    (is (= (percent-decode "%25%") "%%"))
+    (is (= (percent-decode "%%25") "%%"))
+    (is (= (percent-decode "fo%6f b%61r") "foo bar"))))

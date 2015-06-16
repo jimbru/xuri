@@ -36,27 +36,38 @@
         (<= (int \A) ci (int \F))
         (<= (int \a) ci (int \f)))))
 
-(defn percent-decode-char
-  "Decodes a single percent-encoded octet. Properly encoded, each octet
-  should be a three character sequence. Returns nil when a sequence that
-  can't be decoded is encountered."
+(defn- encoded-octet->byte
+  "Translates a percent-encoded octet to its byte value. When encoded, an octet
+  may be represented by one of the unreserved characters itself, or as a three-
+  character string beginning with a percent sign and ending in a hex value."
   [s]
-  (assert (= (count s) 3))
-  (when (and (= (first s) \%) (every? hex-digit? (rest s)))
-    (-> (subs s 1)
-        (Integer/valueOf 16)
-        .byteValue
-        list
-        byte-array
-        (String. "UTF-8"))))
+  (let [sc (count s)]
+    (assert (or (= sc 1) (= sc 3)))
+    (.byteValue
+      (if (= sc 1)
+        (int (first s))
+        (Integer/valueOf (subs s 1) 16)))))
+
+(defn- parse-encoded-octets
+  "Consumes a sequence of percent-encoded characters and produces a lazy
+  sequence of parsed octets. These octets take the form of strings, either
+  of a single character, or of a three-character encoded sequence beginning
+  with a percent sign and ending in a hex value."
+  [s]
+  (lazy-seq
+    (when (seq s)
+      (let [trigram (take 3 s)]
+        (if (and (= (count trigram) 3)
+                 (= (first trigram) \%)
+                 (every? hex-digit? (rest trigram)))
+          (cons (string/join trigram) (parse-encoded-octets (nthnext s 3)))
+          (cons (str (first s)) (parse-encoded-octets (next s))))))))
 
 (defn percent-decode
-  "TODO"
+  "Percent-decodes the given string (per RFC 3986), returning a string result.
+  Use this function to properly decode URI components."
   [s]
-  (loop [s (str s)
-         acc ""]
-    (if (< (count s) 3)
-      (str acc s)
-      (if-let [decoded (percent-decode-char (subs s 0 3))]
-        (recur (subs s 3) (str acc decoded))
-        (recur (subs s 1) (str acc (first s)))))))
+  (as-> (parse-encoded-octets s) $
+        (map encoded-octet->byte $)
+        (byte-array $)
+        (String. $ "UTF-8")))
