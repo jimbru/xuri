@@ -7,26 +7,22 @@
 (def unreserved-chars
   (set "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.~"))
 
-(defn percent-encode-all
-  "Percent-encodes all characters in the passed-in string (or character),
-  returning a string result."
-  [s]
-  (->> (.getBytes (str s) "UTF-8")
-       (map (partial format "%%%02X"))
-       (string/join)))
+(defn- char->encoded-octet
+  "Translates a character to its percent-encoded octet. Unreserved characters
+  represent themselves while other characters are encoded into a three-character
+  sequence beginning with a percent sign and ending in a hex value."
+  [c]
+  (if (contains? unreserved-chars c)
+    c
+    (->> (.getBytes (str c) "UTF-8")
+         (map (partial format "%%%02X"))
+         (string/join))))
 
 (defn percent-encode
-  "Percent-encodes all not-unreserved (per RFC 3986) characters in the
-  passed-in string (or character), returning a string result. Use this
-  function to properly encode URI components."
+  "Percent-encodes the given string (per RFC 3986), returning a string result.
+  Use this function to properly encode URI components."
   [s]
-  (loop [s (str s)
-         acc ""]
-    (if-let [c (first s)]
-      (recur (rest s) (str acc (if (contains? unreserved-chars c)
-                                 c
-                                 (percent-encode-all c))))
-      acc)))
+  (string/join (map char->encoded-octet s)))
 
 (defn- hex-digit?
   "Predicate true if character is a valid hexadecimal digit."

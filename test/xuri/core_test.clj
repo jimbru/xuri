@@ -3,29 +3,10 @@
             [clojure.test :refer :all]
             [xuri.core :refer :all]))
 
-(deftest percent-encode-all-test
-  (testing "empty strings"
-    (is (= (percent-encode-all nil) ""))
-    (is (= (percent-encode-all "") "")))
-  (testing "characters"
-    (is (= (percent-encode-all \a) "%61")))
-  (testing "ASCII strings"
-    (is (= (percent-encode-all "a") "%61"))
-    (is (= (percent-encode-all " ") "%20"))
-    (is (= (percent-encode-all "%") "%25"))
-    (is (= (percent-encode-all "A b") "%41%20%62")))
-  (testing "UTF-8 strings"
-    (is (= (percent-encode-all "£") "%C2%A3"))
-    (is (= (percent-encode-all "€") "%E2%82%AC"))
-    (is (= (percent-encode-all "A%b €£") "%41%25%62%20%E2%82%AC%C2%A3"))))
-
 (deftest percent-encode-test
   (testing "empty strings"
     (is (= (percent-encode nil) ""))
     (is (= (percent-encode "") "")))
-  (testing "characters"
-    (is (= (percent-encode \a) "a"))
-    (is (= (percent-encode \space) "%20")))
   (testing "ASCII strings"
     (is (= (percent-encode "a") "a"))
     (is (= (percent-encode " ") "%20"))
